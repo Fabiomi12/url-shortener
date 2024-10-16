@@ -1,6 +1,6 @@
 package com.example.url.shortener.security.filter;
 
-import com.example.url.shortener.service.ShortenedUrlService;
+import com.example.url.shortener.service.UrlShortenerService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,7 +19,7 @@ public class UrlRedirectFilter extends OncePerRequestFilter {
 
     private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
-    private final ShortenedUrlService shortenedUrlService;
+    private final UrlShortenerService urlShortenerService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -27,7 +27,8 @@ public class UrlRedirectFilter extends OncePerRequestFilter {
         if (path.startsWith(SHORT_URL_PREFIX)) {
             try {
                 String hash = path.substring(3); // Remove prefix
-                var entity = shortenedUrlService.findByHash(hash);
+                var entity = urlShortenerService.findEntityByHash(hash);
+                urlShortenerService.incrementClickCount(entity.getId());
                 redirectStrategy.sendRedirect(request, response, entity.getOriginalUrl());
                 return;
             } catch (Exception ignored) {

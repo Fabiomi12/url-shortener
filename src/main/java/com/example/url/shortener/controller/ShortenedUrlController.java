@@ -2,7 +2,7 @@ package com.example.url.shortener.controller;
 
 import com.example.url.shortener.dto.ShortenedUrlGetDto;
 import com.example.url.shortener.dto.ShortenedUrlPostDto;
-import com.example.url.shortener.service.ShortenedUrlService;
+import com.example.url.shortener.service.UrlShortenerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,7 +13,7 @@ import java.util.Collection;
 @RequiredArgsConstructor
 public class ShortenedUrlController {
 
-    private final ShortenedUrlService service;
+    private final UrlShortenerService service;
 
     @PostMapping
     public ShortenedUrlGetDto save(@RequestBody ShortenedUrlPostDto dto) {
