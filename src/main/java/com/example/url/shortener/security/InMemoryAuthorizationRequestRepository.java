@@ -1,19 +1,17 @@
 package com.example.url.shortener.security;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.util.Assert;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.Cookie;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class InMemoryAuthorizationRequestRepository implements AuthorizationRequestRepository<OAuth2AuthorizationRequest> {
 
     private final ConcurrentHashMap<String, OAuth2AuthorizationRequest> authorizationRequests = new ConcurrentHashMap<>();
     private static final String STATE_PARAMETER = "state";
-    private static final String AUTHORIZATION_REQUEST_COOKIE_NAME = "oauth2_auth_request";
 
     @Override
     public OAuth2AuthorizationRequest loadAuthorizationRequest(HttpServletRequest request) {
@@ -37,7 +35,6 @@ public class InMemoryAuthorizationRequestRepository implements AuthorizationRequ
         String state = authorizationRequest.getState();
         Assert.hasText(state, "authorizationRequest.state cannot be empty");
         authorizationRequests.put(state, authorizationRequest);
-        addStateToCookie(request, response, state);
     }
 
     @Override
@@ -47,29 +44,11 @@ public class InMemoryAuthorizationRequestRepository implements AuthorizationRequ
         if (stateParameter == null) {
             return null;
         }
-        OAuth2AuthorizationRequest authorizationRequest = authorizationRequests.remove(stateParameter);
-        if (authorizationRequest != null && response != null) {
-            removeStateFromCookie(response);
-        }
-        return authorizationRequest;
+        return authorizationRequests.remove(stateParameter);
     }
 
     private String getStateParameter(HttpServletRequest request) {
         return request.getParameter(STATE_PARAMETER);
     }
 
-    private void addStateToCookie(HttpServletRequest request, HttpServletResponse response, String state) {
-        Cookie cookie = new Cookie(AUTHORIZATION_REQUEST_COOKIE_NAME, state);
-        cookie.setPath("/");
-        cookie.setHttpOnly(true);
-        cookie.setMaxAge(180);
-        response.addCookie(cookie);
-    }
-
-    private void removeStateFromCookie(HttpServletResponse response) {
-        Cookie cookie = new Cookie(AUTHORIZATION_REQUEST_COOKIE_NAME, null);
-        cookie.setPath("/");
-        cookie.setMaxAge(0);
-        response.addCookie(cookie);
-    }
 }
