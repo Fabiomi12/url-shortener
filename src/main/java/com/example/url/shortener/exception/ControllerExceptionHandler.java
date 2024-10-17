@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @ControllerAdvice
 public class ControllerExceptionHandler {
@@ -26,9 +26,19 @@ public class ControllerExceptionHandler {
         return createErrorResponse(HttpStatus.FORBIDDEN, e.getMessage());
     }
 
+    @ExceptionHandler(UrlAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleUrlAlreadyExistsException(UrlAlreadyExistsException e) {
+        return createErrorResponse(HttpStatus.CONFLICT, e.getMessage());
+    }
+
+    @ExceptionHandler(ApiException.class)
+    public ResponseEntity<ErrorResponse> handleApiException(ApiException e) {
+        return createErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
+    }
+
     private ResponseEntity<ErrorResponse> createErrorResponse(HttpStatus status, String message) {
         ErrorResponse errorResponse = new ErrorResponse(
-                LocalDateTime.now().toString(),
+                Instant.now(),
                 status.value(),
                 status.getReasonPhrase(),
                 message

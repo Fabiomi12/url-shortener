@@ -6,12 +6,14 @@ import com.example.url.shortener.dal.repo.ShortenedUrlRepository;
 import com.example.url.shortener.dto.ShortenedUrlGetDto;
 import com.example.url.shortener.dto.ShortenedUrlPostDto;
 import com.example.url.shortener.exception.ForbiddenUserActionException;
+import com.example.url.shortener.exception.IncorrectUrlException;
 import com.example.url.shortener.exception.UrlAlreadyExistsException;
 import com.example.url.shortener.exception.UrlNotFoundException;
 import com.example.url.shortener.mapper.ShortenedUrlMapper;
 import com.example.url.shortener.quartz.UrlDeletionScheduler;
 import com.example.url.shortener.util.RequestUtils;
 import com.example.url.shortener.util.SimpleBase62;
+import com.example.url.shortener.util.UrlValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
@@ -32,6 +34,9 @@ public class JpaUrlShortenerService implements UrlShortenerService {
     @Override
     @SneakyThrows
     public ShortenedUrlGetDto save(ShortenedUrlPostDto dto) {
+        if (!UrlValidator.isValidUrl(dto.getOriginalUrl())) {
+            throw new IncorrectUrlException();
+        }
         var existingUrl = repository.findByOriginalUrl(dto.getOriginalUrl());
         if (existingUrl.isPresent()) {
             throw new UrlAlreadyExistsException();
@@ -72,5 +77,4 @@ public class JpaUrlShortenerService implements UrlShortenerService {
     public void incrementClickCount(long id) {
         repository.incrementClickCount(id);
     }
-
 }

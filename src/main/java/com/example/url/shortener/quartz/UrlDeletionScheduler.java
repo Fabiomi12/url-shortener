@@ -22,6 +22,8 @@ public class UrlDeletionScheduler {
         Trigger trigger = TriggerBuilder.newTrigger()
                 .withIdentity("urlDeletionTrigger-" + urlId)
                 .startAt(Date.from(deletionTime))
+                .withSchedule(SimpleScheduleBuilder.simpleSchedule()
+                        .withMisfireHandlingInstructionFireNow())
                 .build();
 
         scheduler.scheduleJob(jobDetail, trigger);
