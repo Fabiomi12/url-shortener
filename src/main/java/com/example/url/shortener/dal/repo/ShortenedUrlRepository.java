@@ -10,8 +10,9 @@ import java.util.Optional;
 public interface ShortenedUrlRepository extends JpaRepository<ShortenedUrl, Long> {
 
     @Query(value = "UPDATE shortened_url SET click_count = click_count + 1 WHERE id = :id", nativeQuery = true)
-    int incrementClickCount(long id);
+    void incrementClickCount(long id);
     Collection<ShortenedUrl> findAllByUserId(String userId);
     Optional<ShortenedUrl> findByHash(String hash);
     Optional<ShortenedUrl> findByHashAndUserId(String hash, String userId);
+    Optional<ShortenedUrl> findByOriginalUrl(String url);
 }

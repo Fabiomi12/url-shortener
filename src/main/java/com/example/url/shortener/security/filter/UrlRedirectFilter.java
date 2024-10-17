@@ -1,6 +1,6 @@
 package com.example.url.shortener.security.filter;
 
-import com.example.url.shortener.service.UrlShortenerService;
+import com.example.url.shortener.service.shortener.UrlShortenerService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

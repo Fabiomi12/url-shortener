@@ -1,4 +1,4 @@
-package com.example.url.shortener.service;
+package com.example.url.shortener.service.shortener;
 
 import com.example.url.shortener.dal.entity.ShortenedUrl;
 import com.example.url.shortener.dto.ShortenedUrlGetDto;

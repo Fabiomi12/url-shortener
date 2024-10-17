@@ -28,7 +28,7 @@ public class ControllerExceptionHandler {
 
     private ResponseEntity<ErrorResponse> createErrorResponse(HttpStatus status, String message) {
         ErrorResponse errorResponse = new ErrorResponse(
-                LocalDateTime.now(),
+                LocalDateTime.now().toString(),
                 status.value(),
                 status.getReasonPhrase(),
                 message

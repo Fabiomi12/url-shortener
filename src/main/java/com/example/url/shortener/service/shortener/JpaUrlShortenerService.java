@@ -1,4 +1,4 @@
-package com.example.url.shortener.service;
+package com.example.url.shortener.service.shortener;
 
 import com.example.url.shortener.config.ApplicationProperties;
 import com.example.url.shortener.dal.entity.ShortenedUrl;
@@ -6,6 +6,7 @@ import com.example.url.shortener.dal.repo.ShortenedUrlRepository;
 import com.example.url.shortener.dto.ShortenedUrlGetDto;
 import com.example.url.shortener.dto.ShortenedUrlPostDto;
 import com.example.url.shortener.exception.ForbiddenUserActionException;
+import com.example.url.shortener.exception.UrlAlreadyExistsException;
 import com.example.url.shortener.exception.UrlNotFoundException;
 import com.example.url.shortener.mapper.ShortenedUrlMapper;
 import com.example.url.shortener.quartz.UrlDeletionScheduler;
@@ -31,6 +32,10 @@ public class JpaUrlShortenerService implements UrlShortenerService {
     @Override
     @SneakyThrows
     public ShortenedUrlGetDto save(ShortenedUrlPostDto dto) {
+        var existingUrl = repository.findByOriginalUrl(dto.getOriginalUrl());
+        if (existingUrl.isPresent()) {
+            throw new UrlAlreadyExistsException();
+        }
         var entity = mapper.fromDto(dto);
         var savedEntity = repository.save(entity);
         savedEntity.setHash(SimpleBase62.encode(entity.getId()));

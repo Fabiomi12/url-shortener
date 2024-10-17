@@ -1,16 +1,15 @@
 package com.example.url.shortener.security;
 
-import com.example.url.shortener.security.filter.UrlRedirectFilter;
-import com.example.url.shortener.service.UrlShortenerService;
+import com.example.url.shortener.service.shortener.UrlShortenerService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.session.DisableEncodeUrlFilter;
 
-@Configuration(proxyBeanMethods = false)
+@Configuration
 public class SecurityConfig {
 
     @Bean
@@ -18,13 +17,21 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/oauth2/**", "/login/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
-                .addFilterAfter(new UrlRedirectFilter(urlShortenerService), DisableEncodeUrlFilter.class);
+                .oauth2Login(oauth2Configurer -> oauth2Configurer
+                        .loginPage("/oauth2/authorization/url-shortener")
+                        .defaultSuccessUrl("/swagger-ui/index.html")
+                        .authorizationEndpoint(authorization ->
+                                authorization.authorizationRequestRepository(authorizationRequestRepository())
+                        )
+                );
         return http.build();
     }
 
-
+    @Bean
+    public AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository() {
+        return new InMemoryAuthorizationRequestRepository();
+    }
 }
