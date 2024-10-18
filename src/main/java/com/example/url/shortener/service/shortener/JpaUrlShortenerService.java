@@ -12,12 +12,12 @@ import com.example.url.shortener.exception.UrlNotFoundException;
 import com.example.url.shortener.mapper.ShortenedUrlMapper;
 import com.example.url.shortener.quartz.UrlDeletionScheduler;
 import com.example.url.shortener.util.RequestUtils;
-import com.example.url.shortener.util.SimpleBase62;
 import com.example.url.shortener.util.UrlValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 
+import java.util.Base64;
 import java.util.Collection;
 
 import static com.example.url.shortener.util.Constants.SHORT_URL_PREFIX;
@@ -43,7 +43,7 @@ public class JpaUrlShortenerService implements UrlShortenerService {
         }
         var entity = mapper.fromDto(dto);
         var savedEntity = repository.save(entity);
-        savedEntity.setHash(SimpleBase62.encode(entity.getId()));
+        savedEntity.setHash(Base64.getUrlEncoder().withoutPadding().encodeToString(entity.getId().toString().getBytes()));
         repository.save(savedEntity);
         urlDeletionScheduler.scheduleUrlDeletion(entity.getId(), entity.getExpiresAt());
         return mapper.toDto(savedEntity);

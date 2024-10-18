@@ -2,7 +2,6 @@ package com.example.url.shortener.dal.entity;
 
 import com.example.url.shortener.util.RequestUtils;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -25,7 +24,6 @@ public class ShortenedUrl {
     private String originalUrl;
     private String hash;
     private String userId;
-    @Setter(AccessLevel.NONE)
     private long clickCount = 0L;
 
     public ShortenedUrl(String originalUrl, int expireTime, ChronoUnit expireTimeUnit) {
